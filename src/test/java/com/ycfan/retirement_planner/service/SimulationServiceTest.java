@@ -3,6 +3,8 @@ package com.ycfan.retirement_planner.service;
 
 import com.ycfan.retirement_planner.model.dto.SimulationRequest;
 import com.ycfan.retirement_planner.model.dto.SimulationResult;
+import com.ycfan.retirement_planner.service.RiskProfileProvider;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,7 +13,7 @@ public class SimulationServiceTest {
 
     @Test
     void runMonteCarlo_validInput_returnsResult() {
-        SimulationService service = new SimulationService();
+        SimulationService service = new SimulationService(new RiskProfileProvider());
 
         SimulationRequest req = new SimulationRequest();
         req.setCurrentAge(25);
@@ -51,7 +53,7 @@ public class SimulationServiceTest {
 
     @Test
     void runMonteCarlo_invalidAge_throwsException() {
-        SimulationService service = new SimulationService();
+        SimulationService service = new SimulationService(new RiskProfileProvider());
 
         SimulationRequest req = validRequest();
         req.setCurrentAge(65);
@@ -64,7 +66,7 @@ public class SimulationServiceTest {
 
     @Test
     void runMonteCarlo_invalidNumSimulations_throwsException() {
-        SimulationService service = new SimulationService();
+        SimulationService service = new SimulationService(new RiskProfileProvider());
 
         SimulationRequest req = validRequest();
         req.setCurrentAge(25);

@@ -3,6 +3,8 @@ package com.ycfan.retirement_planner.service;
 import com.ycfan.retirement_planner.model.domain.PathResult;
 import com.ycfan.retirement_planner.model.dto.SimulationRequest;
 import com.ycfan.retirement_planner.model.dto.SimulationResult;
+import com.ycfan.retirement_planner.model.dto.RiskProfileInfo;
+import com.ycfan.retirement_planner.service.RiskProfileProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,12 @@ import java.util.List;
 
 @Service
 public class SimulationService {
+
+    private final RiskProfileProvider riskProfileProvider;
+
+    public SimulationService(RiskProfileProvider riskProfileProvider) {
+        this.riskProfileProvider = riskProfileProvider;
+    }
 
     private static final Logger log =
             LoggerFactory.getLogger(SimulationService.class);
@@ -79,9 +87,8 @@ public class SimulationService {
         double wealth = req.getCurrentSavings();
         double yearlyContribution = req.getYearlyContribution();
 
-        double[] params = getRiskParams(req.getRiskProfile());
-        double meanReturn = params[0]; // annual mean
-        double stdDev = params[1];     // annual volatility
+        double meanReturn = riskProfileProvider.getOrDefault(req.getRiskProfile()).getMean(); // annual mean
+        double stdDev = riskProfileProvider.getOrDefault(req.getRiskProfile()).getVolatility();     // annual volatility
 
         List<Double> path = new ArrayList<>();
         path.add(wealth); // initial state (year 0)
@@ -106,20 +113,6 @@ public class SimulationService {
     }
 
 
-    // Maps a risk profile to (meanReturn, stdDev)
-    private double[] getRiskParams(String riskProfile) {
-        if (riskProfile == null) riskProfile = "balanced";
-
-        switch (riskProfile.toLowerCase()) {
-            case "conservative":
-                return new double[]{0.04, 0.08};
-            case "aggressive":
-                return new double[]{0.08, 0.18};
-            case "balanced":
-            default:
-                return new double[]{0.06, 0.12};
-        }
-    }
 
     // Generates a standard normal random variable using Box-Muller transform
     protected double randomNormal() {
