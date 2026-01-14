@@ -15,7 +15,8 @@ Users provide basic financial inputs and a risk profile, and the system returns 
 - Visualization of sample simulation paths (fixed number of representative paths)
 - Clear separation between API boundary, business logic, and presentation
 - API boundary validation with automated tests
-- Lightweight frontend served directly by Spring Boot
+- Modern React frontend with typed API client 
+- Development-time frontend/backend decoupling via proxy
 
 ---
 
@@ -25,19 +26,19 @@ This project is implemented as a single Spring Boot application that serves both
 
 ### Components
 
-1. **Frontend (Static Assets)**
-  - Served from Spring Boot’s static resources directory
-  - Collects user inputs and visualizes simulation results
+1. **Frontend (React)**
+  - Built with React + TypeScript using Vite
+  - Uses a dedicated API client layer for backend interaction
   - Communicates with the backend via HTTP (JSON)
 
 2. **Backend (REST API)**
+  - Implemented using Spring Boot
   - Exposes a REST endpoint for running simulations
   - Validates input, executes Monte Carlo logic, and returns results as JSON
 
 ### Request Flow
 
-1. Browser requests `/`  
-   → Spring Boot serves `index.html`
+1. User opens the frontend (React application)
 2. User submits simulation inputs  
    → Frontend sends `POST /api/simulate`
 3. Backend:
@@ -47,19 +48,23 @@ This project is implemented as a single Spring Boot application that serves both
   - Serializes results into JSON
 4. Frontend renders summary statistics and sample path chart
 
+During development, frontend requests are proxied to the backend via Vite.
+
 ---
-
 ## Technology Stack
-
+### Backend:
+- **Framework**: Spring Boot (embedded Tomcat)
 - **Language**: Java 17
-- **Backend Framework**: Spring Boot (embedded Tomcat)
 - **Web Layer**: Spring MVC
 - **JSON Processing**: Jackson
 - **Validation**: Jakarta Bean Validation
 - **Testing**: JUnit 5, MockMvc
-- **Frontend**: HTML, CSS, JavaScript
-- **Charting**: Chart.js (via CDN)
-
+### Frontend:
+- **Framework**: React
+- **Language**: Typescript
+- **Build tool**: Vite
+- **Charting**: Chart.js
+- **HTTP**: Fetch API (via typed API client)
 ---
 
 ## Getting Started
@@ -67,11 +72,21 @@ This project is implemented as a single Spring Boot application that serves both
 ### Prerequisites
 
 - Java 17 or newer
+- Node.js
 - Maven Wrapper
 
 ### Run the application
+
+1. Start the backend
 ```bash
 ./mvnw spring-boot:run
 ```
-- open http://localhost:8080/
+- Backend runs at http://localhost:8080/
 
+2. Start the frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+- Backend runs at http://localhost:5173/ (or as indicated in the terminal)
